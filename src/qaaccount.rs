@@ -3,15 +3,6 @@ use std::collections::{BTreeMap, HashMap};
 use std::error::Error;
 use std::io;
 
-use chrono::format::ParseError;
-use chrono::{DateTime, FixedOffset, Local, NaiveDate, NaiveDateTime, NaiveTime, TimeZone, Utc};
-use csv;
-use qifi_rs::{Account, Order, Position, Trade, QIFI};
-use serde::{Deserialize, Serialize};
-use serde_json::to_string;
-use uuid::v1::{Context, Timestamp};
-use uuid::Uuid;
-use log::{info,error,warn};
 use crate::market_preset::{CodePreset, MarketPreset};
 use crate::qaorder::QAOrder;
 use crate::qaposition;
@@ -19,6 +10,15 @@ use crate::qaposition::{QA_Frozen, QA_Postions};
 use crate::trade_date::QATradeDate;
 use crate::transaction;
 use crate::transaction::QATransaction;
+use chrono::format::ParseError;
+use chrono::{DateTime, FixedOffset, Local, NaiveDate, NaiveDateTime, NaiveTime, TimeZone, Utc};
+use csv;
+use log::{error, info, warn};
+use qifi_rs::{Account, Order, Position, Trade, QIFI};
+use serde::{Deserialize, Serialize};
+use serde_json::to_string;
+use uuid::v1::{Context, Timestamp};
+use uuid::Uuid;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct QAAccountSlice {
@@ -131,7 +131,7 @@ pub struct QA_Account {
     event_id: i32,
     commission_ratio: f64,
     // 手续费率
-    tax_ratio: f64,        // tax for qaaccount
+    tax_ratio: f64, // tax for qaaccount
 }
 
 impl QA_Account {
@@ -580,22 +580,58 @@ impl QA_Account {
     pub fn sell(&mut self, code: &str, amount: f64, time: &str, price: f64) -> Result<QAOrder, ()> {
         self.send_order(code, amount, time, -1, price, "SELL")
     }
-    pub fn buy_open(&mut self, code: &str, amount: f64, time: &str, price: f64) -> Result<QAOrder, ()> {
+    pub fn buy_open(
+        &mut self,
+        code: &str,
+        amount: f64,
+        time: &str,
+        price: f64,
+    ) -> Result<QAOrder, ()> {
         self.send_order(code, amount, time, 2, price, "BUY_OPEN")
     }
-    pub fn sell_open(&mut self, code: &str, amount: f64, time: &str, price: f64) -> Result<QAOrder, ()> {
+    pub fn sell_open(
+        &mut self,
+        code: &str,
+        amount: f64,
+        time: &str,
+        price: f64,
+    ) -> Result<QAOrder, ()> {
         self.send_order(code, amount, time, -2, price, "SELL_OPEN")
     }
-    pub fn buy_close(&mut self, code: &str, amount: f64, time: &str, price: f64) -> Result<QAOrder, ()> {
+    pub fn buy_close(
+        &mut self,
+        code: &str,
+        amount: f64,
+        time: &str,
+        price: f64,
+    ) -> Result<QAOrder, ()> {
         self.send_order(code, amount, time, 3, price, "BUY_CLOSE")
     }
-    pub fn sell_close(&mut self, code: &str, amount: f64, time: &str, price: f64) -> Result<QAOrder, ()> {
+    pub fn sell_close(
+        &mut self,
+        code: &str,
+        amount: f64,
+        time: &str,
+        price: f64,
+    ) -> Result<QAOrder, ()> {
         self.send_order(code, amount, time, -3, price, "SELL_CLOSE")
     }
-    pub fn buy_closetoday(&mut self, code: &str, amount: f64, time: &str, price: f64) -> Result<QAOrder, ()> {
+    pub fn buy_closetoday(
+        &mut self,
+        code: &str,
+        amount: f64,
+        time: &str,
+        price: f64,
+    ) -> Result<QAOrder, ()> {
         self.send_order(code, amount, time, 4, price, "BUY_CLOSETODAY")
     }
-    pub fn sell_closetoday(&mut self, code: &str, amount: f64, time: &str, price: f64) -> Result<QAOrder, ()> {
+    pub fn sell_closetoday(
+        &mut self,
+        code: &str,
+        amount: f64,
+        time: &str,
+        price: f64,
+    ) -> Result<QAOrder, ()> {
         self.send_order(code, amount, time, -4, price, "SELL_CLOSETODAY")
     }
     pub fn get_tradingday(&mut self) -> String {
@@ -612,7 +648,8 @@ impl QA_Account {
         order_id: String,
     ) -> bool {
         let mut res = false;
-        if self.hold.contains_key(code) {} else {
+        if self.hold.contains_key(code) {
+        } else {
             self.init_h(code);
         }
         let qapos = self.get_position(code).unwrap();
@@ -688,7 +725,10 @@ impl QA_Account {
 
                     res = true
                 } else {
-                    warn!("余额不足,当前可用money {:#?}, 需要冻结 {:#?}", self.money, frozen);
+                    warn!(
+                        "余额不足,当前可用money {:#?}, 需要冻结 {:#?}",
+                        self.money, frozen
+                    );
                 }
             }
             _ => {}
@@ -812,7 +852,6 @@ impl QA_Account {
             Err(())
         }
     }
-
 
     pub fn on_price_change(&mut self, code: String, price: f64, datetime: String) {
         // 当行情变化时候 要更新计算持仓
@@ -1078,14 +1117,7 @@ mod tests {
     fn test_realaccountmodel_for_stock() {
         println!("test buy open");
         let code = "000001";
-        let mut acc = QA_Account::new(
-            "RustT01B2_RBL8",
-            "test",
-            "admin",
-            1000000.0,
-            false,
-            "real",
-        );
+        let mut acc = QA_Account::new("RustT01B2_RBL8", "test", "admin", 1000000.0, false, "real");
 
         acc.buy_open(code, 1000.0, "2020-01-20", 35.0);
         println!("MONEY LEFT{:#?}", acc.money);

@@ -26,8 +26,8 @@ pub struct Stats<T: Float + Zero + One + AddAssign + FromPrimitive + PartialEq +
 }
 
 impl<T> Stats<T>
-    where
-        T: Float + Zero + One + AddAssign + FromPrimitive + PartialEq + Debug,
+where
+    T: Float + Zero + One + AddAssign + FromPrimitive + PartialEq + Debug,
 {
     /// Create a new rolling-stats object
     pub fn new() -> Stats<T> {

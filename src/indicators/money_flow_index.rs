@@ -251,5 +251,4 @@ mod tests {
         let mfi = MoneyFlowIndex::new(10).unwrap();
         assert_eq!(format!("{}", mfi), "MFI(10)");
     }
-
 }

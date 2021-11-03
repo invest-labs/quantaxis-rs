@@ -14,7 +14,6 @@ async fn some_computation() -> String {
     "represents the result of the computation".to_string()
 }
 
-
 #[tokio::main]
 async fn main() {
     let code = "RB2005".to_string();
@@ -24,14 +23,18 @@ async fn main() {
     acc.init_h(&code);
     acc2.init_h(&code);
     let join = task::spawn(async {
-        let order = acc.send_order_async(&code, 10.0, "2020-01-20 22:10:00", 2, 3500.0, "BUY_OPEN").await;
+        let order = acc
+            .send_order_async(&code, 10.0, "2020-01-20 22:10:00", 2, 3500.0, "BUY_OPEN")
+            .await;
         acc.settle();
         println!("ok2");
         println!("order: {:?}", order);
         (acc, code)
     });
     let join2 = task::spawn(async {
-        let order = acc2.send_order_async(&c, 10.0, "2020-01-20 22:10:00", 2, 3500.0, "BUY_OPEN").await;
+        let order = acc2
+            .send_order_async(&c, 10.0, "2020-01-20 22:10:00", 2, 3500.0, "BUY_OPEN")
+            .await;
         acc2.settle();
         println!("2");
         println!("order: {:?}", order);

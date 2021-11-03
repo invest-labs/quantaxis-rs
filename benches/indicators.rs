@@ -3,7 +3,6 @@ extern crate bencher;
 extern crate quantaxis_rs;
 
 use bencher::Bencher;
-use rand::Rng;
 use quantaxis_rs::indicators::{
     BollingerBands, EfficiencyRatio, ExponentialMovingAverage, FastStochastic, Maximum, Minimum,
     MoneyFlowIndex, MovingAverageConvergenceDivergence, OnBalanceVolume, RateOfChange,
@@ -11,6 +10,7 @@ use quantaxis_rs::indicators::{
 };
 use quantaxis_rs::DataItem;
 use quantaxis_rs::Next;
+use rand::Rng;
 
 const ITEMS_COUNT: usize = 5_000;
 
@@ -71,4 +71,3 @@ bench_indicators!(
     MoneyFlowIndex,
     OnBalanceVolume
 );
-

@@ -20,10 +20,10 @@ impl Bar {
         }
     }
 
-//    pub fn open<T: Into<f64>>(mut self, val :T ) -> Self {
-//        self.open = val.into();
-//        self
-//    }
+    //    pub fn open<T: Into<f64>>(mut self, val :T ) -> Self {
+    //        self.open = val.into();
+    //        self
+    //    }
 
     pub fn high<T: Into<f64>>(mut self, val: T) -> Self {
         self.high = val.into();

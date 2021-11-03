@@ -1,17 +1,13 @@
-
 // use std::f64::NAN;
-
 
 // use ndarray;
 // use ndarray::prelude::*;
 // use std::iter::FromIterator;
 
-
 // #[derive(Debug)]
 // pub enum Err {
 //     NotEnoughtData, // not enought data to compute requested values
 // }
-
 
 // pub fn round_array(array: &mut [f64], decimals: u8) {
 //     let divider = (10.0 as f64).powi(decimals as i32);
@@ -19,9 +15,6 @@
 //         *number = (*number * divider).round() / divider;
 //     }
 // }
-
-
-
 
 // //pub fn HHV(data: &[f64], period: usize) -> Result<Vec<f64>, Err> {
 // //    if length <= 0 {
@@ -98,7 +91,6 @@
 //     }
 //     Ok(result)
 // }
-
 
 // pub fn psar(high: &[f64], low: &[f64], iaf: f64, maxaf: f64) -> Result<Vec<f64>, Err> {
 //     let mut psar = vec![NAN; high.len()];
@@ -187,7 +179,6 @@
 //     Ok(psar)
 // }
 
-
 // pub fn rsi(data: &[f64], period: usize) -> Result<Vec<f64>, Err> {
 //     if period > data.len() {
 //         return Err(Err::NotEnoughtData);
@@ -245,9 +236,6 @@
 //     Ok(rsis)
 // }
 
-
-
-
 // // Some randomly generated data to test against TA-Lib (see generate_data.py & correct_values.py)
 // const OPEN: &[f64] = &[1984.03, 1959.83, 2041.42, 2019.04, 1969.53, 2082.75, 2209.52, 2200.9,
 //     2364.04, 2543.32, 2423.95, 2483.28, 2604.88, 2393.81, 2231.27, 2420.82,
@@ -261,7 +249,6 @@
 // const CLOSE: &[f64] = &[1959.83, 2041.42, 2019.04, 1969.53, 2082.75, 2209.52, 2200.9, 2364.04,
 //     2543.32, 2423.95, 2483.28, 2604.88, 2393.81, 2231.27, 2420.82, 2544.0,
 //     2766.67, 2919.62, 2763.25, 2922.14];
-
 
 // #[test]
 // fn sma_works() {

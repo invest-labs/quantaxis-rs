@@ -1,8 +1,8 @@
 use std::f64::INFINITY;
 use std::fmt;
 
-use crate::{Low, Next, Reset, Update};
 use crate::errors::*;
+use crate::{Low, Next, Reset, Update};
 
 /// Returns the lowest value in a given time frame.
 ///
@@ -29,7 +29,7 @@ pub struct LLV {
     vec: Vec<f64>,
     min_index: usize,
     cur_index: usize,
-    pub cached: Vec<f64>
+    pub cached: Vec<f64>,
 }
 
 impl LLV {
@@ -62,9 +62,9 @@ impl LLV {
             vec: vec![INFINITY; n],
             min_index: 0,
             cur_index: 0,
-            cached:  vec![INFINITY; n],
+            cached: vec![INFINITY; n],
         };
-        for data in vec{
+        for data in vec {
             indicator.next(data as f64);
         }
         Ok(indicator)
@@ -102,7 +102,6 @@ impl Next<f64> for LLV {
         self.vec[self.min_index]
     }
 }
-
 
 impl Update<f64> for LLV {
     type Output = f64;
@@ -217,7 +216,6 @@ mod tests {
         assert_eq!(min.next(2.2), 2.2);
     }
 
-
     #[test]
     fn test_next_with_bars() {
         fn bar(low: f64) -> Bar {
@@ -247,7 +245,7 @@ mod tests {
 
     #[test]
     fn test_newx() {
-        let mut LLV_Indicator = LLV::new_init(2, vec![3.0,4.0,3.0]).unwrap();
+        let mut LLV_Indicator = LLV::new_init(2, vec![3.0, 4.0, 3.0]).unwrap();
         println!("{:#?}", LLV_Indicator);
         assert_eq!(LLV_Indicator.next(5.0), 3.0);
         println!("{:#?}", LLV_Indicator);
@@ -259,7 +257,7 @@ mod tests {
 
     #[test]
     fn test_new_notenough() {
-        let mut LLV_Indicator = LLV::new_init(4, vec![4.0,6.0,3.0]).unwrap();
+        let mut LLV_Indicator = LLV::new_init(4, vec![4.0, 6.0, 3.0]).unwrap();
         println!("{:#?}", LLV_Indicator);
         assert_eq!(LLV_Indicator.next(5.0), 3.0);
         println!("{:#?}", LLV_Indicator);

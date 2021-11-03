@@ -9,8 +9,8 @@ use std::io;
 use std::process;
 
 use csv::{ReaderBuilder, WriterBuilder};
-use ndarray::{array, stack};
 use ndarray::prelude::*;
+use ndarray::{array, stack};
 use serde_json;
 use stopwatch::Stopwatch;
 
@@ -21,8 +21,8 @@ pub mod qafetch;
 pub mod qaindicator;
 pub mod qaorder;
 pub mod qaposition;
-pub mod transaction;
 pub mod trade_date;
+pub mod transaction;
 
 pub struct QABacktest {}
 

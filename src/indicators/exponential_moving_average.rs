@@ -57,7 +57,7 @@ pub struct ExponentialMovingAverage {
     k: f64,
     current: f64,
     is_new: bool,
-    pub cached: Vec<f64>
+    pub cached: Vec<f64>,
 }
 
 impl ExponentialMovingAverage {
@@ -71,7 +71,7 @@ impl ExponentialMovingAverage {
                     k,
                     current: 0f64,
                     is_new: true,
-                    cached: vec![-INFINITY; length as usize]
+                    cached: vec![-INFINITY; length as usize],
                 };
                 Ok(indicator)
             }
@@ -87,7 +87,6 @@ impl Next<f64> for ExponentialMovingAverage {
     type Output = f64;
 
     fn next(&mut self, input: f64) -> Self::Output {
-
         if self.is_new {
             self.is_new = false;
             self.current = input;
@@ -99,7 +98,6 @@ impl Next<f64> for ExponentialMovingAverage {
         self.cached.remove(0);
         self.current
     }
-
 }
 
 impl Update<f64> for ExponentialMovingAverage {
@@ -110,13 +108,13 @@ impl Update<f64> for ExponentialMovingAverage {
             self.is_new = false;
             self.current = input;
         } else {
-            self.current = self.k * input + (1.0 - self.k) * self.cached[(self.length -2) as usize];
+            self.current =
+                self.k * input + (1.0 - self.k) * self.cached[(self.length - 2) as usize];
         }
         self.cached.remove((self.length - 1) as usize);
         self.cached.push(self.current.clone());
         self.current
     }
-
 }
 
 impl<'a, T: Close> Next<&'a T> for ExponentialMovingAverage {
@@ -125,9 +123,7 @@ impl<'a, T: Close> Next<&'a T> for ExponentialMovingAverage {
     fn next(&mut self, input: &'a T) -> Self::Output {
         self.next(input.close())
     }
-
 }
-
 
 impl<'a, T: Close> Update<&'a T> for ExponentialMovingAverage {
     type Output = f64;
@@ -135,7 +131,6 @@ impl<'a, T: Close> Update<&'a T> for ExponentialMovingAverage {
     fn update(&mut self, input: &'a T) -> Self::Output {
         self.update(input.close())
     }
-
 }
 
 impl Reset for ExponentialMovingAverage {
@@ -225,8 +220,6 @@ mod tests {
         // assert_eq!(ema.next(&bar1), 2.0);
         // assert_eq!(ema.next(&bar2), 3.5);
     }
-
-
 
     #[test]
     fn test_reset() {

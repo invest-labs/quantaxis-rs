@@ -20,7 +20,6 @@ pub struct QATransaction {
     pub direction: i32,
 }
 
-
 impl QATransaction {
     pub fn to_json(&self) -> String {
         let jdata = serde_json::to_string(&self).unwrap();
@@ -40,7 +39,6 @@ impl QATransaction {
         };
         rt
     }
-
 
     pub fn to_qifitrade(&mut self) -> Trade {
         let (direction, offset) = self.get_direction_or_offset(self.direction);
@@ -92,4 +90,3 @@ mod tests {
         transaction.to_qifitrade();
     }
 }
-

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use chrono::{DateTime, FixedOffset, NaiveDate, NaiveDateTime, NaiveTime, TimeZone, Utc};
 use chrono::format::ParseError;
+use chrono::{DateTime, FixedOffset, NaiveDate, NaiveDateTime, NaiveTime, TimeZone, Utc};
 use qifi_rs::account::Trade;
 use serde::{Deserialize, Serialize};
 
@@ -26,8 +26,6 @@ pub struct QATradePair {
     pub hold_gap: f64,
 }
 
-
-
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Temp {
     pub amount: f64,
@@ -48,24 +46,26 @@ pub struct QAPerformance_Single {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct QAPerformance {
-    pub market: HashMap<String, QAPerformance_Single>
+    pub market: HashMap<String, QAPerformance_Single>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct QARiskMessage {}
 
-
 impl QAPerformance {
     pub fn new() -> Self {
         QAPerformance {
-            market: HashMap::new()
+            market: HashMap::new(),
         }
     }
 
     pub fn insert_trade(&mut self, trade: Trade) {
         let code = trade.instrument_id.clone();
         if self.market.contains_key(&code) {
-            self.market.get_mut(&code).unwrap().insert_trade(trade.clone());
+            self.market
+                .get_mut(&code)
+                .unwrap()
+                .insert_trade(trade.clone());
         } else {
             let mut u = QAPerformance_Single::new();
             u.insert_trade(trade.clone());
@@ -132,11 +132,12 @@ impl QAPerformance_Single {
 
                 if trade.volume > f.amount {
                     // close> raw ==> 注销继续loop
-                    let hold_gap = (trade.trade_date_time.clone() - f.datetime.clone()) as f64/1000000000.0;
+                    let hold_gap =
+                        (trade.trade_date_time.clone() - f.datetime.clone()) as f64 / 1000000000.0;
                     let mut pnl_money = codeset.unit_table as f64
                         * (trade.price.clone() - f.price.clone())
                         * f.amount.clone();
-                    if !is_buy{
+                    if !is_buy {
                         pnl_money = pnl_money * -1.0;
                     }
                     let pnl_ratio =
@@ -144,8 +145,14 @@ impl QAPerformance_Single {
                     self.pair.push(QATradePair {
                         open_datetime: f.datetime.clone(),
                         close_datetime: trade.trade_date_time.clone(),
-                        opendate:  Utc.timestamp_nanos(f.datetime.clone()+ 28800000000000).to_string()[0..19].to_string(),
-                        closedate: Utc.timestamp_nanos(trade.trade_date_time.clone()+ 28800000000000).to_string()[0..19].to_string(),
+                        opendate: Utc
+                            .timestamp_nanos(f.datetime.clone() + 28800000000000)
+                            .to_string()[0..19]
+                            .to_string(),
+                        closedate: Utc
+                            .timestamp_nanos(trade.trade_date_time.clone() + 28800000000000)
+                            .to_string()[0..19]
+                            .to_string(),
                         if_buyopen: is_buy,
                         code: f.code.clone(),
                         amount: f.amount.clone(),
@@ -155,7 +162,7 @@ impl QAPerformance_Single {
                         close_trade_id: trade.trade_id.clone(),
                         pnl_ratio,
                         pnl_money,
-                        hold_gap
+                        hold_gap,
                     });
                     let mut new_t = trade.clone();
 
@@ -163,11 +170,12 @@ impl QAPerformance_Single {
                     u.remove(0);
                     self.insert_trade(new_t)
                 } else if trade.volume < f.amount {
-                    let hold_gap: f64 = (trade.trade_date_time.clone() - f.datetime.clone()) as f64/1000000000.0;
+                    let hold_gap: f64 =
+                        (trade.trade_date_time.clone() - f.datetime.clone()) as f64 / 1000000000.0;
                     let mut pnl_money = codeset.unit_table as f64
                         * (trade.price.clone() - f.price.clone())
                         * trade.volume.clone();
-                    if !is_buy{
+                    if !is_buy {
                         pnl_money = pnl_money * -1.0;
                     }
                     let pnl_ratio =
@@ -175,8 +183,14 @@ impl QAPerformance_Single {
                     self.pair.push(QATradePair {
                         open_datetime: f.datetime.clone(),
                         close_datetime: trade.trade_date_time.clone(),
-                        opendate:  Utc.timestamp_nanos(f.datetime.clone()+ 28800000000000).to_string()[0..19].to_string(),
-                        closedate: Utc.timestamp_nanos(trade.trade_date_time.clone()+ 28800000000000).to_string()[0..19].to_string(),
+                        opendate: Utc
+                            .timestamp_nanos(f.datetime.clone() + 28800000000000)
+                            .to_string()[0..19]
+                            .to_string(),
+                        closedate: Utc
+                            .timestamp_nanos(trade.trade_date_time.clone() + 28800000000000)
+                            .to_string()[0..19]
+                            .to_string(),
                         if_buyopen: is_buy,
                         code: f.code.clone(),
                         amount: trade.volume.clone(),
@@ -186,7 +200,7 @@ impl QAPerformance_Single {
                         close_trade_id: trade.trade_id.clone(),
                         pnl_ratio,
                         pnl_money,
-                        hold_gap
+                        hold_gap,
                     });
                     f.amount -= trade.volume.clone();
 
@@ -195,17 +209,24 @@ impl QAPerformance_Single {
                     let mut pnl_money = codeset.unit_table as f64
                         * (trade.price.clone() - f.price.clone())
                         * f.amount.clone();
-                    if !is_buy{
+                    if !is_buy {
                         pnl_money = pnl_money * -1.0;
                     }
                     let pnl_ratio =
                         pnl_money / (f.price.clone() * f.amount.clone() * codeset.calc_coeff());
-                    let hold_gap:f64 = (trade.trade_date_time.clone() - f.datetime.clone()) as f64/1000000000.0;
+                    let hold_gap: f64 =
+                        (trade.trade_date_time.clone() - f.datetime.clone()) as f64 / 1000000000.0;
                     self.pair.push(QATradePair {
                         open_datetime: f.datetime.clone(),
                         close_datetime: trade.trade_date_time.clone(),
-                        opendate:  Utc.timestamp_nanos(f.datetime.clone()+ 28800000000000).to_string()[0..19].to_string(),
-                        closedate: Utc.timestamp_nanos(trade.trade_date_time.clone()+ 28800000000000).to_string()[0..19].to_string(),
+                        opendate: Utc
+                            .timestamp_nanos(f.datetime.clone() + 28800000000000)
+                            .to_string()[0..19]
+                            .to_string(),
+                        closedate: Utc
+                            .timestamp_nanos(trade.trade_date_time.clone() + 28800000000000)
+                            .to_string()[0..19]
+                            .to_string(),
                         if_buyopen: is_buy,
                         code: f.code.clone(),
                         amount: f.amount.clone(),
@@ -215,7 +236,7 @@ impl QAPerformance_Single {
                         close_trade_id: trade.trade_id.clone(),
                         pnl_ratio,
                         pnl_money,
-                        hold_gap
+                        hold_gap,
                     });
                     u.remove(0);
                 }
@@ -382,7 +403,12 @@ mod tests {
             //     .unwrap()
             //     .timestamp_nanos()
             //     - 28800000000000,
-            println!("{:#?}", Utc.timestamp_nanos(ux.trade_date_time.clone() + 28800000000000).to_string()[0..19].to_string());
+            println!(
+                "{:#?}",
+                Utc.timestamp_nanos(ux.trade_date_time.clone() + 28800000000000)
+                    .to_string()[0..19]
+                    .to_string()
+            );
             p.insert_trade(i.to_owned());
         }
         println!("{:#?}", p.pair());
@@ -421,7 +447,12 @@ mod tests {
             //     .unwrap()
             //     .timestamp_nanos()
             //     - 28800000000000,
-            println!("{:#?}", Utc.timestamp_nanos(ux.trade_date_time.clone() + 28800000000000).to_string()[0..19].to_string());
+            println!(
+                "{:#?}",
+                Utc.timestamp_nanos(ux.trade_date_time.clone() + 28800000000000)
+                    .to_string()[0..19]
+                    .to_string()
+            );
             p.insert_trade(i.to_owned());
         }
         println!("{:#?}", p.pair());

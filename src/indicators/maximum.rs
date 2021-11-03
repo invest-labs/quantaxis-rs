@@ -1,8 +1,8 @@
 use std::f64::INFINITY;
 use std::fmt;
 
-use crate::{High, Next, Reset};
 use crate::errors::*;
+use crate::{High, Next, Reset};
 
 /// Returns the highest value in a given time frame.
 ///

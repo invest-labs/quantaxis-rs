@@ -1,5 +1,5 @@
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Clone)]
 pub struct QAOrder {
@@ -86,7 +86,7 @@ impl QAOrder {
     }
 
     pub fn to_trade_order(&self) -> TradeOrder {
-        TradeOrder{
+        TradeOrder {
             aid: "insert_order".to_string(),
             user_id: self.account_cookie.clone(),
             order_id: self.order_id.clone(),
@@ -98,11 +98,10 @@ impl QAOrder {
             price_type: self.price_type.clone(),
             limit_price: self.price,
             volume_condition: self.volume_condition.clone(),
-            time_condition: self.time_condition.clone()
+            time_condition: self.time_condition.clone(),
         }
     }
 }
-
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TradeOrder {

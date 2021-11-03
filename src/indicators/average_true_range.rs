@@ -30,7 +30,7 @@ pub struct AverageTrueRange {
     true_range: TrueRange,
     ma: MovingAverage,
     length: usize,
-    pub cached: Vec<f64>
+    pub cached: Vec<f64>,
 }
 
 impl AverageTrueRange {
@@ -39,7 +39,7 @@ impl AverageTrueRange {
             true_range: TrueRange::new(),
             ma: MovingAverage::new(length)?,
             length: length as usize,
-            cached: vec![-INFINITY; length as usize]
+            cached: vec![-INFINITY; length as usize],
         };
         Ok(indicator)
     }
@@ -81,7 +81,7 @@ impl<'a, T: High + Low + Close> Update<&'a T> for AverageTrueRange {
     type Output = f64;
 
     fn update(&mut self, input: &'a T) -> Self::Output {
-        let res  = self.ma.update(self.true_range.update(input));
+        let res = self.ma.update(self.true_range.update(input));
         let x = self.cached.last_mut().unwrap();
         *x = res;
         res

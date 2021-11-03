@@ -1,8 +1,8 @@
 use std::f64::INFINITY;
 use std::fmt;
 
-use crate::{High, Next, Reset, Update};
 use crate::errors::*;
+use crate::{High, Next, Reset, Update};
 
 /// Returns the highest value in a given time frame.
 ///
@@ -29,7 +29,7 @@ pub struct HHV {
     vec: Vec<f64>,
     max_index: usize,
     cur_index: usize,
-    pub cached: Vec<f64>
+    pub cached: Vec<f64>,
 }
 
 impl HHV {
@@ -45,7 +45,7 @@ impl HHV {
             vec: vec![-INFINITY; n],
             max_index: 0,
             cur_index: 0,
-            cached: vec![-INFINITY; n]
+            cached: vec![-INFINITY; n],
         };
         Ok(indicator)
     }

@@ -13,17 +13,17 @@ use std::io;
 use ndarray::{array, stack};
 use stopwatch::Stopwatch;
 
-use quantaxis_rs::{
-    indicators, Next, qaaccount, qadata, qafetch, qaindicator, qaposition, transaction,
-};
 use quantaxis_rs::indicators::{
-    BollingerBands, EfficiencyRatio, ExponentialMovingAverage, FastStochastic, HHV, LLV,
-    Maximum, Minimum, MoneyFlowIndex, MovingAverage,
-    MovingAverageConvergenceDivergence, OnBalanceVolume, RateOfChange, RelativeStrengthIndex, SimpleMovingAverage,
-    SlowStochastic, StandardDeviation, TrueRange,
+    BollingerBands, EfficiencyRatio, ExponentialMovingAverage, FastStochastic, Maximum, Minimum,
+    MoneyFlowIndex, MovingAverage, MovingAverageConvergenceDivergence, OnBalanceVolume,
+    RateOfChange, RelativeStrengthIndex, SimpleMovingAverage, SlowStochastic, StandardDeviation,
+    TrueRange, HHV, LLV,
 };
 use quantaxis_rs::qaaccount::QA_Account;
 use quantaxis_rs::qaposition::QA_Postions;
+use quantaxis_rs::{
+    indicators, qaaccount, qadata, qafetch, qaindicator, qaposition, transaction, Next,
+};
 
 trait FloatIterExt {
     fn float_min(&mut self) -> f64;
@@ -31,8 +31,8 @@ trait FloatIterExt {
 }
 
 impl<T> FloatIterExt for T
-    where
-        T: Iterator<Item=f64>,
+where
+    T: Iterator<Item = f64>,
 {
     fn float_min(&mut self) -> f64 {
         self.fold(f64::NAN, f64::min)

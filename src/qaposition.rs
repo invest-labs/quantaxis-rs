@@ -400,9 +400,9 @@ impl QA_Postions {
 
                 margin_value = -1.0
                     * (self.position_price_short
-                    * amount
-                    * self.preset.sell_frozen_coeff
-                    * self.preset.unit_table as f64);
+                        * amount
+                        * self.preset.sell_frozen_coeff
+                        * self.preset.unit_table as f64);
 
                 //println!("BUY CLOSE XX MV{:#?}", margin_value);
 
@@ -423,13 +423,14 @@ impl QA_Postions {
                     self.volume_long_frozen_today -= amount;
                     margin_value = -1.0
                         * (self.position_price_long
-                        * amount
-                        * self.preset.unit_table as f64
-                        * self.preset.buy_frozen_coeff);
+                            * amount
+                            * self.preset.unit_table as f64
+                            * self.preset.buy_frozen_coeff);
                     profit =
                         (price - self.position_price_long) * amount * self.preset.unit_table as f64;
                     self.margin_long += margin_value;
-                } else {}
+                } else {
+                }
             }
             -3 => {
                 //self.volume_long_today -= amount;
@@ -442,9 +443,9 @@ impl QA_Postions {
                 self.volume_long_frozen_today -= amount;
                 margin_value = -1.0
                     * (self.position_price_long
-                    * amount
-                    * self.preset.unit_table as f64
-                    * self.preset.buy_frozen_coeff);
+                        * amount
+                        * self.preset.unit_table as f64
+                        * self.preset.buy_frozen_coeff);
                 profit =
                     (price - self.position_price_long) * amount * self.preset.unit_table as f64;
                 self.margin_long += margin_value;
@@ -486,7 +487,6 @@ mod tests {
             "test_portfolio".to_string(),
         );
         pos.message();
-
 
         println!("{:#?}", pos.preset);
         assert_eq!(pos.market_type, "stock_cn")

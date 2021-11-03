@@ -3,18 +3,16 @@ use std::fmt;
 use crate::helpers::max3;
 use crate::{Close, High, Low, Next, Reset, Update};
 
-
 #[derive(Debug, Clone)]
 pub struct TrueRange {
-
-
-    prev_closeque: Vec<f64>
-
+    prev_closeque: Vec<f64>,
 }
 
 impl TrueRange {
     pub fn new() -> Self {
-        Self {  prev_closeque:vec![] }
+        Self {
+            prev_closeque: vec![],
+        }
     }
 }
 
@@ -34,35 +32,32 @@ impl Next<f64> for TrueRange {
     type Output = f64;
 
     fn next(&mut self, input: f64) -> Self::Output {
-        if self.prev_closeque.len()<1{
+        if self.prev_closeque.len() < 1 {
             self.prev_closeque.push(input);
             0.0
-        }else {
+        } else {
             let distance = match self.prev_closeque[self.prev_closeque.len() - 1] {
                 prev => (input - prev).abs(),
-                _ => 0.0
+                _ => 0.0,
             };
 
             self.prev_closeque.push(input);
             distance
         }
-
-
     }
 }
 impl Update<f64> for TrueRange {
     type Output = f64;
 
     fn update(&mut self, input: f64) -> Self::Output {
-
-        if self.prev_closeque.len()<2{
+        if self.prev_closeque.len() < 2 {
             let u = self.prev_closeque.last_mut().unwrap();
             *u = input;
             0.0
-        }else{
-            let distance = match self.prev_closeque[self.prev_closeque.len() -2]{
+        } else {
+            let distance = match self.prev_closeque[self.prev_closeque.len() - 2] {
                 prev => (input - prev).abs(),
-                _ => 0.0
+                _ => 0.0,
             };
 
             let u = self.prev_closeque.last_mut().unwrap();
@@ -70,7 +65,6 @@ impl Update<f64> for TrueRange {
             //self.prev_close = Some(input);
             distance
         }
-
     }
 }
 
@@ -78,10 +72,10 @@ impl<'a, T: High + Low + Close> Next<&'a T> for TrueRange {
     type Output = f64;
 
     fn next(&mut self, bar: &'a T) -> Self::Output {
-        if self.prev_closeque.len()<1{
+        if self.prev_closeque.len() < 1 {
             self.prev_closeque.push(bar.close());
-            bar.high()- bar.low()
-        }else{
+            bar.high() - bar.low()
+        } else {
             let max_dist = match self.prev_closeque[self.prev_closeque.len() - 1] {
                 prev_close => {
                     let dist1 = bar.high() - bar.low();
@@ -100,12 +94,12 @@ impl<'a, T: High + Low + Close> Update<&'a T> for TrueRange {
     type Output = f64;
 
     fn update(&mut self, bar: &'a T) -> Self::Output {
-        if self.prev_closeque.len()<2{
+        if self.prev_closeque.len() < 2 {
             let u = self.prev_closeque.last_mut().unwrap();
             *u = bar.close();
             bar.high() - bar.low()
-        }else{
-            let max_dist = match self.prev_closeque[self.prev_closeque.len() -2] {
+        } else {
+            let max_dist = match self.prev_closeque[self.prev_closeque.len() - 2] {
                 prev_close => {
                     let dist1 = bar.high() - bar.low();
                     let dist2 = (bar.high() - prev_close).abs();
@@ -118,7 +112,6 @@ impl<'a, T: High + Low + Close> Update<&'a T> for TrueRange {
             *u = bar.close();
             max_dist
         }
-
     }
 }
 
@@ -166,15 +159,12 @@ mod tests {
         assert_eq!(round(tr.next(3.3)), 0.3);
     }
 
-
-
     #[test]
     fn test_update_f64() {
         let mut tr = TrueRange::new();
         assert_eq!(round(tr.next(2.5)), 0.0);
 
         assert_eq!(round(tr.update(3.3)), 0.0);
-
 
         let mut tr = TrueRange::new();
         assert_eq!(round(tr.next(2.5)), 0.0);
@@ -186,7 +176,6 @@ mod tests {
         println!("{:#?}", tr);
         assert_eq!(round(tr.update(3.6)), 0.3);
         println!("{:#?}", tr);
-
     }
 
     #[test]

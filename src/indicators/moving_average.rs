@@ -1,8 +1,8 @@
 use std::f64::NAN;
 use std::fmt;
 
-use crate::{Close, Next, Reset, Update};
 use crate::errors::*;
+use crate::{Close, Next, Reset, Update};
 
 /// moving average (ma).
 ///
@@ -40,7 +40,7 @@ pub struct MovingAverage {
     count: u32,
     sum: f64,
     vec: Vec<f64>,
-    pub cached: Vec<f64>
+    pub cached: Vec<f64>,
 }
 
 impl MovingAverage {
@@ -61,8 +61,8 @@ impl MovingAverage {
         }
     }
 
-    pub fn is_real(&self)->bool{
-        self.count-1 >= self.n
+    pub fn is_real(&self) -> bool {
+        self.count - 1 >= self.n
     }
 }
 
@@ -88,7 +88,6 @@ impl Next<f64> for MovingAverage {
         res
     }
 }
-
 
 impl<'a, T: Close> Next<&'a T> for MovingAverage {
     type Output = f64;
@@ -122,7 +121,6 @@ impl Update<f64> for MovingAverage {
     }
 }
 
-
 impl<'a, T: Close> Update<&'a T> for MovingAverage {
     type Output = f64;
 
@@ -130,7 +128,6 @@ impl<'a, T: Close> Update<&'a T> for MovingAverage {
         self.update(input.close())
     }
 }
-
 
 impl Reset for MovingAverage {
     fn reset(&mut self) {
@@ -141,7 +138,6 @@ impl Reset for MovingAverage {
             self.vec[i] = 0.0;
             self.cached[i] = 0.0;
         }
-
     }
 }
 
@@ -218,8 +214,6 @@ mod tests {
         assert_eq!(ma.is_real(), false);
         ma.next(4.0);
         assert_eq!(ma.is_real(), true);
-
-
     }
 
     #[test]
@@ -231,7 +225,6 @@ mod tests {
         assert_eq!(ma.update(8.0), 7.0);
         assert_eq!(ma.next(9.0), 8.5);
     }
-
 
     #[test]
     fn test_cached() {

@@ -5,8 +5,8 @@ extern crate serde;
 use core::fmt::Debug;
 use core::ops::AddAssign;
 
-use num_traits::{cast::FromPrimitive, float::Float, identities::One, identities::Zero};
 use num_traits::real::Real;
+use num_traits::{cast::FromPrimitive, float::Float, identities::One, identities::Zero};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -28,8 +28,8 @@ pub struct Data<T: Float + Zero + One + AddAssign + FromPrimitive + PartialEq + 
 }
 
 impl<T> Data<T>
-    where
-        T: Float + Zero + One + AddAssign + FromPrimitive + PartialEq + Debug,
+where
+    T: Float + Zero + One + AddAssign + FromPrimitive + PartialEq + Debug,
 {
     pub fn new() -> Data<T> {
         Data {
