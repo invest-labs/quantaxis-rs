@@ -222,14 +222,14 @@ mod tests {
             Bar::new().low(low)
         }
 
-        let mut LLV_Indicator = LLV::new(3).unwrap();
-        println!("{:#?}", LLV_Indicator);
-        assert_eq!(LLV_Indicator.next(&bar(4.0)), 4.0);
-        assert_eq!(LLV_Indicator.next(&bar(4.0)), 4.0);
-        println!("{:#?}", LLV_Indicator);
-        assert_eq!(LLV_Indicator.next(&bar(1.2)), 1.2);
-        assert_eq!(LLV_Indicator.next(&bar(5.0)), 1.2);
-        println!("{:#?}", LLV_Indicator);
+        let mut llvi = LLV::new(3).unwrap();
+        println!("{:#?}", llvi);
+        assert_eq!(llvi.next(&bar(4.0)), 4.0);
+        assert_eq!(llvi.next(&bar(4.0)), 4.0);
+        println!("{:#?}", llvi);
+        assert_eq!(llvi.next(&bar(1.2)), 1.2);
+        assert_eq!(llvi.next(&bar(5.0)), 1.2);
+        println!("{:#?}", llvi);
     }
 
     #[test]
@@ -245,26 +245,26 @@ mod tests {
 
     #[test]
     fn test_newx() {
-        let mut LLV_Indicator = LLV::new_init(2, vec![3.0, 4.0, 3.0]).unwrap();
-        println!("{:#?}", LLV_Indicator);
-        assert_eq!(LLV_Indicator.next(5.0), 3.0);
-        println!("{:#?}", LLV_Indicator);
-        assert_eq!(LLV_Indicator.next(7.0), 5.0);
-        println!("{:#?}", LLV_Indicator);
-        LLV_Indicator.reset();
-        assert_eq!(LLV_Indicator.next(8.0), 8.0);
+        let mut llvi = LLV::new_init(2, vec![3.0, 4.0, 3.0]).unwrap();
+        println!("{:#?}", llvi);
+        assert_eq!(llvi.next(5.0), 3.0);
+        println!("{:#?}", llvi);
+        assert_eq!(llvi.next(7.0), 5.0);
+        println!("{:#?}", llvi);
+        llvi.reset();
+        assert_eq!(llvi.next(8.0), 8.0);
     }
 
     #[test]
     fn test_new_notenough() {
-        let mut LLV_Indicator = LLV::new_init(4, vec![4.0, 6.0, 3.0]).unwrap();
-        println!("{:#?}", LLV_Indicator);
-        assert_eq!(LLV_Indicator.next(5.0), 3.0);
-        println!("{:#?}", LLV_Indicator);
-        assert_eq!(LLV_Indicator.next(2.0), 2.0);
-        println!("{:#?}", LLV_Indicator);
-        LLV_Indicator.reset();
-        assert_eq!(LLV_Indicator.next(8.0), 8.0);
+        let mut llvi = LLV::new_init(4, vec![4.0, 6.0, 3.0]).unwrap();
+        println!("{:#?}", llvi);
+        assert_eq!(llvi.next(5.0), 3.0);
+        println!("{:#?}", llvi);
+        assert_eq!(llvi.next(2.0), 2.0);
+        println!("{:#?}", llvi);
+        llvi.reset();
+        assert_eq!(llvi.next(8.0), 8.0);
     }
     #[test]
     fn test_default() {

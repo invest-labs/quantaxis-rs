@@ -147,6 +147,7 @@ impl Reset for MoneyFlowIndex {
 }
 
 #[cfg(test)]
+#[allow(unused_macros)]
 mod tests {
     use super::*;
     use crate::test_helper::*;

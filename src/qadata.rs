@@ -1,7 +1,6 @@
 use core::fmt::Debug;
 use core::ops::AddAssign;
 
-use ndarray::array;
 use num_traits::{cast::FromPrimitive, float::Float, identities::One, identities::Zero};
 use serde::{Deserialize, Serialize};
 
@@ -70,6 +69,7 @@ where
     }
 }
 
+#[allow(dead_code)]
 fn main() {
     let mut s: Stats<f32> = Stats::new();
 

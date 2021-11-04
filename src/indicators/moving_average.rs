@@ -1,4 +1,3 @@
-use std::f64::NAN;
 use std::fmt;
 
 use crate::errors::*;

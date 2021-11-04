@@ -1,7 +1,6 @@
-use chrono::{DateTime, Offset, TimeZone, Utc};
+use chrono::{TimeZone, Utc};
 use qifi_rs::Trade;
 use serde::{Deserialize, Serialize};
-use serde_json::to_string;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct QATransaction {

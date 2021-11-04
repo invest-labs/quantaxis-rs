@@ -3,9 +3,9 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 
 use crate::market_preset::{CodePreset, MarketPreset};
-use crate::qaorder::QAOrder;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[allow(non_camel_case_types)]
 pub struct QA_Frozen {
     pub amount: f64,
     pub coeff: f64,
@@ -19,6 +19,7 @@ impl QA_Frozen {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[allow(non_camel_case_types)]
 pub struct QA_Postions {
     pub preset: CodePreset,
     pub code: String,
@@ -76,6 +77,7 @@ pub fn adjust_market(code: &str) -> String {
 }
 
 impl QA_Postions {
+    #[allow(dead_code)]
     pub(crate) fn message(&self) {
         println!("{}", self.code.clone());
         let u = serde_json::to_string(self).unwrap();
@@ -88,7 +90,7 @@ impl QA_Postions {
         account_cookie: String,
         portfolio_cookie: String,
     ) -> Self {
-        let mut preset: CodePreset = MarketPreset::new().get(code.as_ref());
+        let preset: CodePreset = MarketPreset::new().get(code.as_ref());
 
         let pos = Self {
             preset,
@@ -151,7 +153,7 @@ impl QA_Postions {
         open_price_long: f64,
         open_price_short: f64,
     ) -> Self {
-        let mut preset: CodePreset = MarketPreset::new().get(code.as_ref());
+        let preset: CodePreset = MarketPreset::new().get(code.as_ref());
 
         let mut pos = Self {
             preset,
@@ -234,19 +236,19 @@ impl QA_Postions {
     }
 
     pub fn settle(&mut self) {
-        self.volume_long_his += (self.volume_long_today + self.volume_long_frozen_today);
+        self.volume_long_his += self.volume_long_today + self.volume_long_frozen_today;
         self.volume_long_today = 0.0;
         self.volume_long_frozen_today = 0.0;
-        self.volume_short_his += (self.volume_short_today + self.volume_short_frozen_today);
+        self.volume_short_his += self.volume_short_today + self.volume_short_frozen_today;
         self.volume_short_today = 0.0;
         self.volume_short_frozen_today = 0.0;
     }
 
     pub async fn settle_async(&mut self) {
-        self.volume_long_his += (self.volume_long_today + self.volume_long_frozen_today);
+        self.volume_long_his += self.volume_long_today + self.volume_long_frozen_today;
         self.volume_long_today = 0.0;
         self.volume_long_frozen_today = 0.0;
-        self.volume_short_his += (self.volume_short_today + self.volume_short_frozen_today);
+        self.volume_short_his += self.volume_short_today + self.volume_short_frozen_today;
         self.volume_short_today = 0.0;
         self.volume_short_frozen_today = 0.0;
     }
@@ -464,7 +466,7 @@ mod tests {
     fn test_new_future() {
         // create a new account
         // 一个期货合约
-        let mut pos = QA_Postions::new(
+        let pos = QA_Postions::new(
             "rb2005".to_string(),
             "test".to_string(),
             "test_username".to_string(),
@@ -479,7 +481,7 @@ mod tests {
     fn test_new_stock() {
         // create a new account
         // 一个股票合约
-        let mut pos = QA_Postions::new(
+        let pos = QA_Postions::new(
             "000001".to_string(),
             "test".to_string(),
             "test_username".to_string(),

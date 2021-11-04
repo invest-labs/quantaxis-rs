@@ -1,6 +1,3 @@
-use std::borrow::Borrow;
-use std::ops::Index;
-
 pub struct QATradeDate {
     trade_date: Vec<i32>,
 }
@@ -968,7 +965,7 @@ impl QATradeDate {
     pub fn to_string(&mut self, date: i32) -> String {
         let year = date / 10000;
         let month = (date - year * 10000) / 100;
-        let day = (date - year * 10000 - month * 100);
+        let day = date - year * 10000 - month * 100;
         let month_1 = if month < 10 {
             format!("0{}", month)
         } else {
@@ -1007,7 +1004,7 @@ impl QATradeDate {
         let ur = self.to_i32(date);
 
         let u = self.trade_date.iter().position(|x| x >= &ur).unwrap();
-        let mut res = 0;
+        let res: i32;
         if self.trade_date.contains(&ur) {
             res = self.trade_date.get_mut(u + 1).unwrap().to_owned();
         } else {
@@ -1018,15 +1015,14 @@ impl QATradeDate {
     pub fn get_last_day(&mut self, date: &str) -> String {
         let ur = self.to_i32(date);
         let u = self.trade_date.iter().position(|x| x >= &ur).unwrap();
-        let mut res = 0;
-        res = self.trade_date.get_mut(u - 1).unwrap().to_owned();
+        let res = self.trade_date.get_mut(u - 1).unwrap().to_owned();
         self.to_string(res)
     }
     pub fn get_next_n_day(&mut self, date: &str, n: i32) -> String {
         let ur = self.to_i32(date);
 
         let u = self.trade_date.iter().position(|x| x >= &ur).unwrap();
-        let mut res = 0;
+        let res: i32;
         if self.trade_date.contains(&ur) {
             res = self.trade_date.get_mut(u + n as usize).unwrap().to_owned();
         } else {
@@ -1041,8 +1037,7 @@ impl QATradeDate {
     pub fn get_last_n_day(&mut self, date: &str, n: i32) -> String {
         let ur = self.to_i32(date);
         let u = self.trade_date.iter().position(|x| x >= &ur).unwrap();
-        let mut res = 0;
-        res = self.trade_date.get_mut(u - n as usize).unwrap().to_owned();
+        let res = self.trade_date.get_mut(u - n as usize).unwrap().to_owned();
         self.to_string(res)
     }
     pub fn get_trade_day(&mut self, datetime: String) -> String {
@@ -1071,8 +1066,6 @@ impl QATradeDate {
 
 #[cfg(test)]
 mod tests {
-    use crate::qaaccount::QA_Account;
-
     use super::*;
 
     #[test]

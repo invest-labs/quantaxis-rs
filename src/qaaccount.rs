@@ -1,27 +1,23 @@
-use std::borrow::Borrow;
 use std::collections::{BTreeMap, HashMap};
 use std::error::Error;
-use std::io;
 
-use crate::market_preset::{CodePreset, MarketPreset};
+use crate::market_preset::MarketPreset;
 use crate::qaorder::QAOrder;
-use crate::qaposition;
 use crate::qaposition::{QA_Frozen, QA_Postions};
 use crate::trade_date::QATradeDate;
 use crate::transaction;
 use crate::transaction::QATransaction;
-use chrono::format::ParseError;
-use chrono::{DateTime, FixedOffset, Local, NaiveDate, NaiveDateTime, NaiveTime, TimeZone, Utc};
+use chrono::{Local, TimeZone, Utc};
 use csv;
 use log::{error, info, warn};
 use qifi_rs::{Account, Order, Position, Trade, QIFI};
 use serde::{Deserialize, Serialize};
-use serde_json::to_string;
 use uuid::v1::{Context, Timestamp};
 use uuid::Uuid;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct QAAccountSlice {
+#[allow(non_camel_case_types)]
+pub struct QA_AccountSlice {
     pub datetime: String,
     pub cash: f64,
     pub accounts: account,
@@ -53,6 +49,7 @@ pub struct QAMOMSlice {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[allow(non_camel_case_types)]
 pub struct account_info {
     pub datetime: String,
     pub balance: f64,
@@ -60,6 +57,7 @@ pub struct account_info {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[allow(non_camel_case_types, non_snake_case)]
 pub struct account {
     pub user_id: String,
     // 用户号 兼容diff协议, ==> 实盘则为具体账户号
@@ -100,8 +98,8 @@ pub struct account {
     pub risk_ratio: f64, // 风险度
 }
 
-#[warn(non_camel_case_types)]
 #[derive(Debug, Clone)]
+#[allow(non_camel_case_types)]
 pub struct QA_Account {
     init_cash: f64,
     init_hold: HashMap<String, QA_Postions>,
@@ -120,7 +118,7 @@ pub struct QA_Account {
     pub trades: HashMap<String, QATransaction>,
     pub hold: HashMap<String, QA_Postions>,
     pub frozen: HashMap<String, QA_Frozen>,
-    pub dailyassets: HashMap<String, QAAccountSlice>,
+    pub dailyassets: HashMap<String, QA_AccountSlice>,
     pub history: Vec<transaction::QATransaction>,
     pub account_cookie: String,
     pub portfolio_cookie: String,
@@ -131,7 +129,7 @@ pub struct QA_Account {
     event_id: i32,
     commission_ratio: f64,
     // 手续费率
-    tax_ratio: f64, // tax for qaaccount
+    tax_ratio: f64, // tax for QA_Account
 }
 
 impl QA_Account {
@@ -266,7 +264,7 @@ impl QA_Account {
             );
         }
 
-        let mut acc = Self {
+        let acc = Self {
             init_cash: message.accounts.available,
             init_hold: HashMap::new(),
             allow_t0: false,
@@ -470,7 +468,7 @@ impl QA_Account {
     pub fn settle(&mut self) {
         self.dailyassets.insert(
             self.time.clone(),
-            QAAccountSlice {
+            QA_AccountSlice {
                 datetime: self.time.clone(),
                 cash: self.money.clone(),
                 accounts: self.accounts.clone(),
@@ -515,24 +513,24 @@ impl QA_Account {
         }
     }
 
-    pub fn get_codeSubscribed(&mut self) -> Vec<String> {
-        // if a QAAccount trades a packages, then it need the get_codeSubscribed to update the price
+    pub fn get_code_subscribed(&mut self) -> Vec<String> {
+        // if a QA_Account trades a packages, then it need the get_code_subscribed to update the price
         // some examples like below
         // let codes = account.get_codeSubscribed();
         // for code in codes.iter():
         //     acc.on_price_change(code, price.get(code), datetime)
-        let mut codeSub = vec![];
+        let mut code_sub = vec![];
         for key in self.hold.keys() {
-            codeSub.push(key.to_string())
+            code_sub.push(key.to_string())
         }
-        codeSub
+        code_sub
     }
 
-    pub fn get_slice(&mut self) -> QAAccountSlice {
+    pub fn get_slice(&mut self) -> QA_AccountSlice {
         // get a realtime slice of account
         // this can be save to database
 
-        QAAccountSlice {
+        QA_AccountSlice {
             datetime: self.time.clone(),
             cash: self.money.clone(),
             accounts: self.accounts.clone(),
@@ -760,7 +758,7 @@ impl QA_Account {
         time: &str,
         towards: i32,
         price: f64,
-        order_id: &str,
+        _order_id: &str,
     ) -> Result<QAOrder, ()> {
         self.event_id += 1;
         let datetimer = if time.len() == 10 {
@@ -892,7 +890,7 @@ impl QA_Account {
         datetime: String,
         order_id: String,
         trade_id: String,
-        realorder_id: String,
+        _realorder_id: String,
         towards: i32,
         event_id: i32,
     ) {
@@ -922,7 +920,7 @@ impl QA_Account {
         // add calc tax/coeff
         //        qapos.preset.commission_coeff_pervol
 
-        self.money -= (margin - close_profit + commission + tax);
+        self.money -= margin - close_profit + commission + tax;
         self.accounts.close_profit += close_profit;
         self.cash.push(self.money);
         self.accounts.commission += commission + tax;
@@ -995,7 +993,7 @@ impl QA_Account {
 
         //println!("MARGIN RELEASE {:#?}", margin.clone());
         //println!("CLOSE PROFIT RELEASE {:#?}", close_profit.clone());
-        self.money -= (margin - close_profit + commission + tax);
+        self.money -= margin - close_profit + commission + tax;
         self.accounts.close_profit += close_profit;
         self.cash.push(self.money);
         self.accounts.commission += commission + tax;
@@ -1027,7 +1025,7 @@ mod tests {
     fn test_new() {
         // create a new account
         // 可以正确的创建一个账户
-        let mut acc = QA_Account::new(
+        let acc = QA_Account::new(
             "RustT01B2_RBL8",
             "test",
             "admin",
@@ -1037,7 +1035,7 @@ mod tests {
         );
         acc.history_table();
 
-        let mut acc = QA_Account::new("RustT01B2_RBL8", "test", "admin", 100000.0, false, "real");
+        let _acc = QA_Account::new("RustT01B2_RBL8", "test", "admin", 100000.0, false, "real");
     }
 
     #[test]
@@ -1057,7 +1055,7 @@ mod tests {
 
         acc.init_h("000001");
 
-        println!("{:#?}", acc.get_codeSubscribed());
+        println!("{:#?}", acc.get_code_subscribed());
     }
 
     #[test]
@@ -1088,7 +1086,7 @@ mod tests {
             "backtest",
         );
 
-        acc.buy_open(code, 10.0, "2020-01-20", 3500.0);
+        acc.buy_open(code, 10.0, "2020-01-20", 3500.0).unwrap();
         println!("MONEY LEFT{:#?}", acc.money);
         assert_eq!(acc.get_volume_long(code), 10.0);
         acc.history_table();
@@ -1107,7 +1105,7 @@ mod tests {
             "backtest",
         );
 
-        acc.buy_open(code, 1000.0, "2020-01-20", 35.0);
+        acc.buy_open(code, 1000.0, "2020-01-20", 35.0).unwrap();
         println!("MONEY LEFT{:#?}", acc.money);
         assert_eq!(acc.get_volume_long(code), 1000.0);
         acc.history_table();
@@ -1119,7 +1117,7 @@ mod tests {
         let code = "000001";
         let mut acc = QA_Account::new("RustT01B2_RBL8", "test", "admin", 1000000.0, false, "real");
 
-        acc.buy_open(code, 1000.0, "2020-01-20", 35.0);
+        acc.buy_open(code, 1000.0, "2020-01-20", 35.0).unwrap();
         println!("MONEY LEFT{:#?}", acc.money);
         assert_eq!(acc.get_volume_long(code), 1000.0);
         println!("QIFI {:#?}", acc.get_qifi_slice());
@@ -1138,7 +1136,7 @@ mod tests {
             false,
             "backtest",
         );
-        acc.sell_open(code, 10.0, "2020-01-20", 3500.0);
+        acc.sell_open(code, 10.0, "2020-01-20", 3500.0).unwrap();
         assert_eq!(acc.get_volume_short(code), 10.0);
         acc.history_table();
     }
@@ -1156,9 +1154,9 @@ mod tests {
             "backtest",
         );
         acc.init_h(code);
-        acc.sell_open(code, 10.0, "2020-01-20", 3500.0);
+        acc.sell_open(code, 10.0, "2020-01-20", 3500.0).unwrap();
         assert_eq!(acc.get_volume_short(code), 10.0);
-        acc.buy_close(code, 10.0, "2020-01-20", 3600.0);
+        acc.buy_close(code, 10.0, "2020-01-20", 3600.0).unwrap();
         assert_eq!(acc.get_volume_short(code), 0.0);
         println!("LATEST MONEY {:#?}", acc.money);
         println!("CLOSE PROFIT {:#?}", acc.accounts.close_profit);
@@ -1178,9 +1176,9 @@ mod tests {
             "backtest",
         );
         acc.init_h(code);
-        acc.buy_open(code, 10.0, "2020-01-20", 3500.0);
+        acc.buy_open(code, 10.0, "2020-01-20", 3500.0).unwrap();
         assert_eq!(acc.get_volume_long(code), 10.0);
-        acc.sell_close(code, 10.0, "2020-01-20", 3600.0);
+        acc.sell_close(code, 10.0, "2020-01-20", 3600.0).unwrap();
         assert_eq!(acc.get_volume_long(code), 0.0);
         println!("LATEST MONEY {:#?}", acc.money);
         println!("CLOSE PROFIT {:#?}", acc.accounts.close_profit);
@@ -1200,11 +1198,11 @@ mod tests {
             "backtest",
         );
 
-        acc.buy_open(code, 1000.0, "2020-01-20", 35.0);
+        acc.buy_open(code, 1000.0, "2020-01-20", 35.0).unwrap();
         println!("MONEY LEFT{:#?}", acc.money);
         assert_eq!(acc.get_volume_long(code), 1000.0);
 
-        acc.sell_close(code, 1000.0, "2020-01-20", 36.0);
+        acc.sell_close(code, 1000.0, "2020-01-20", 36.0).unwrap();
         acc.history_table();
     }
 
@@ -1221,7 +1219,7 @@ mod tests {
             "backtest",
         );
 
-        acc.buy(code, 10.0, "2020-01-20 22:10:00", 3500.0);
+        acc.buy(code, 10.0, "2020-01-20 22:10:00", 3500.0).unwrap();
         assert_eq!(acc.get_volume_long(code), 10.0);
         println!("{:#?}", acc.trades)
     }
@@ -1232,11 +1230,11 @@ mod tests {
         let code = "000001";
         let mut acc = QA_Account::new("rust_test_stock", "test", "admin", 100000.0, false, "real");
         acc.init_h(code);
-        acc.buy(code, 10.0, "2020-01-20 22:10:00", 3500.0);
+        acc.buy(code, 10.0, "2020-01-20 22:10:00", 3500.0).unwrap();
         assert_eq!(acc.get_volume_long(code), 10.0);
 
         acc.settle();
-        acc.sell(code, 10.0, "2020-01-22 22:10:00", 3600.0);
+        acc.sell(code, 10.0, "2020-01-22 22:10:00", 3600.0).unwrap();
         println!("{:#?}", acc.dailytrades);
     }
 
@@ -1246,15 +1244,15 @@ mod tests {
         let code = "000001";
         let mut acc = QA_Account::new("rust_test_stock", "test", "admin", 100000.0, false, "real");
         acc.init_h(code);
-        acc.buy(code, 10.0, "2020-01-20 22:10:00", 3500.0);
+        acc.buy(code, 10.0, "2020-01-20 22:10:00", 3500.0).unwrap();
         assert_eq!(acc.get_volume_long(code), 10.0);
         acc.settle();
-        acc.sell(code, 10.0, "2020-01-20 22:10:00", 3600.0);
+        acc.sell(code, 10.0, "2020-01-20 22:10:00", 3600.0).unwrap();
         println!("{:#?}", acc.dailytrades);
     }
 
     #[test]
-    fn test_accountSlice() {
+    fn test_account_slice() {
         println!("test account slice");
         let code = "RB2005";
 
@@ -1267,11 +1265,11 @@ mod tests {
             "backtest",
         );
         acc.init_h(code);
-        acc.buy_open(code, 10.0, "2020-01-20", 3500.0);
+        acc.buy_open(code, 10.0, "2020-01-20", 3500.0).unwrap();
         let slice = acc.get_slice();
         println!("account Slice  {:#?}", slice);
         assert_eq!(acc.get_volume_long(code), 10.0);
-        acc.sell_close(code, 10.0, "2020-01-20", 3600.0);
+        acc.sell_close(code, 10.0, "2020-01-20", 3600.0).unwrap();
         assert_eq!(acc.get_volume_long(code), 0.0);
         println!("LATEST MONEY {:#?}", acc.money);
         println!("CLOSE PROFIT {:#?}", acc.accounts.close_profit);
@@ -1281,16 +1279,18 @@ mod tests {
     }
 
     #[test]
-    fn test_accountSlice_for_qifi() {
+    fn test_account_slice_for_qifi() {
         println!("test account slice");
         let code = "RB2005";
         let mut acc = QA_Account::new("RustT01B2_RBL8", "test", "admin", 100000.0, false, "real");
         acc.init_h(code);
-        acc.buy_open(code, 10.0, "2020-01-20 22:10:00", 3500.0);
+        acc.buy_open(code, 10.0, "2020-01-20 22:10:00", 3500.0)
+            .unwrap();
         let slice = acc.get_qifi_slice();
         println!("account Slice  {:#?}", slice);
         assert_eq!(acc.get_volume_long(code), 10.0);
-        acc.sell_close(code, 10.0, "2020-01-20 22:10:00", 3600.0);
+        acc.sell_close(code, 10.0, "2020-01-20 22:10:00", 3600.0)
+            .unwrap();
         assert_eq!(acc.get_volume_long(code), 0.0);
         println!("LATEST MONEY {:#?}", acc.money);
         println!("CLOSE PROFIT {:#?}", acc.accounts.close_profit);
@@ -1304,13 +1304,16 @@ mod tests {
         println!("test account slice");
         let code = "RB2005";
         let mut acc = QA_Account::new("RustT01B2_RBL8", "test", "admin", 100000.0, false, "real");
-        acc.buy_open(code, 10.0, "2020-01-20 22:10:00", 3500.0);
-        let slice = acc.get_qifi_slice();
+        acc.buy_open(code, 10.0, "2020-01-20 22:10:00", 3500.0)
+            .unwrap();
+        let _slice = acc.get_qifi_slice();
         assert_eq!(acc.get_volume_long(code), 10.0);
         let slice = acc.get_qifi_slice();
         let mut new_acc = QA_Account::new_from_qifi(slice);
         assert_eq!(new_acc.get_volume_long(code), 10.0);
-        new_acc.sell_close(code, 10.0, "2020-01-20 22:10:00", 3600.0);
+        new_acc
+            .sell_close(code, 10.0, "2020-01-20 22:10:00", 3600.0)
+            .unwrap();
 
         println!("{:#?}", new_acc.trades);
 
@@ -1323,13 +1326,16 @@ mod tests {
         let code = "000001";
         let mut acc = QA_Account::new("rust_test_stock", "test", "admin", 100000.0, false, "real");
         acc.init_h(code);
-        acc.buy_open(code, 10.0, "2020-01-20 22:10:00", 3500.0);
-        let slice = acc.get_qifi_slice();
+        acc.buy_open(code, 10.0, "2020-01-20 22:10:00", 3500.0)
+            .unwrap();
+        let _slice = acc.get_qifi_slice();
         assert_eq!(acc.get_volume_long(code), 10.0);
         let slice = acc.get_qifi_slice();
         let mut new_acc = QA_Account::new_from_qifi(slice);
         assert_eq!(new_acc.get_volume_long(code), 10.0);
-        new_acc.sell_close(code, 10.0, "2020-01-20 22:10:00", 3600.0);
+        new_acc
+            .sell_close(code, 10.0, "2020-01-20 22:10:00", 3600.0)
+            .unwrap();
         println!("{:#?}", new_acc.trades);
         println!("{:#?}", new_acc.dailytrades);
     }
@@ -1347,11 +1353,11 @@ mod tests {
             "backtest",
         );
         acc.init_h(code);
-        acc.buy_open(code, 10.0, "2020-01-20", 3500.0);
+        acc.buy_open(code, 10.0, "2020-01-20", 3500.0).unwrap();
         let slice = acc.get_accountmessage();
         println!("account Slice  {:#?}", slice);
         assert_eq!(acc.get_volume_long(code), 10.0);
-        acc.sell_close(code, 10.0, "2020-01-20", 3600.0);
+        acc.sell_close(code, 10.0, "2020-01-20", 3600.0).unwrap();
         assert_eq!(acc.get_volume_long(code), 0.0);
         println!("LATEST MONEY {:#?}", acc.money);
         println!("CLOSE PROFIT {:#?}", acc.accounts.close_profit);
@@ -1374,14 +1380,14 @@ mod tests {
             "backtest",
         );
         acc.init_h(code);
-        acc.buy_open(code, 10.0, "2020-01-20", 3500.0);
+        acc.buy_open(code, 10.0, "2020-01-20", 3500.0).unwrap();
 
         let slice = acc.get_accountmessage();
         println!("before settle");
         println!("account Slice  {:#?}", slice);
         assert_eq!(acc.get_volume_long(code), 10.0);
 
-        acc.sell_close(code, 10.0, "2020-01-20", 3600.0);
+        acc.sell_close(code, 10.0, "2020-01-20", 3600.0).unwrap();
 
         assert_eq!(acc.get_volume_long(code), 0.0);
         //println!("{:#?}", )
@@ -1398,7 +1404,7 @@ mod tests {
         let slice = acc.get_accountmessage();
         println!("account Slice  {:#?}", slice);
 
-        acc.buy_open(code, 10.0, "2020-01-22", 3500.0);
+        acc.buy_open(code, 10.0, "2020-01-22", 3500.0).unwrap();
 
         acc.on_price_change(code.to_string(), 3523.0, "2020-01-22".to_string());
         let slice = acc.get_accountmessage();
@@ -1427,13 +1433,13 @@ mod tests {
             "backtest",
         );
         acc.init_h(code);
-        acc.buy_open(code, 10.0, "2020-01-20", 3500.0);
+        acc.buy_open(code, 10.0, "2020-01-20", 3500.0).unwrap();
         assert_eq!(acc.get_volume_long(code), 10.0);
 
         acc.on_price_change(code.to_string(), 3520.0, "2020-01-20".to_string());
         assert_eq!(2000.0, acc.get_floatprofit());
 
-        acc.sell_close(code, 10.0, "2020-01-20", 3600.0);
+        acc.sell_close(code, 10.0, "2020-01-20", 3600.0).unwrap();
 
         assert_eq!(acc.get_volume_long(code), 0.0);
         //println!("{:#?}", )
@@ -1457,14 +1463,14 @@ mod tests {
             "backtest",
         );
         acc.init_h(code);
-        acc.buy_open(code, 10.0, "2020-01-20", 3500.0);
+        acc.buy_open(code, 10.0, "2020-01-20", 3500.0).unwrap();
         assert_eq!(acc.get_volume_long(code), 10.0);
-        acc.sell_close(code, 10.0, "2020-01-20", 3600.0);
+        acc.sell_close(code, 10.0, "2020-01-20", 3600.0).unwrap();
 
         assert_eq!(acc.get_volume_long(code), 0.0);
         //println!("{:#?}", )
         println!("{:#?}", acc.money);
-        acc.to_csv();
+        acc.to_csv().unwrap();
         //acc.history_table();
     }
 
@@ -1478,7 +1484,7 @@ mod tests {
             false,
             "backtest",
         );
-        acc.buy_open("rb2005", 10.0, "2020-01-20", 3500.0);
+        acc.buy_open("rb2005", 10.0, "2020-01-20", 3500.0).unwrap();
         let r = acc.get_latest_info();
         println!("{:#?}", r);
         assert_eq!(100000.0, acc.get_balance());

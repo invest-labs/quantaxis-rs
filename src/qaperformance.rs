@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
-use chrono::format::ParseError;
-use chrono::{DateTime, FixedOffset, NaiveDate, NaiveDateTime, NaiveTime, TimeZone, Utc};
+use chrono::{TimeZone, Utc};
 use qifi_rs::account::Trade;
 use serde::{Deserialize, Serialize};
 
@@ -38,7 +37,7 @@ pub struct Temp {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct QAPerformance_Single {
+pub struct QAPerformanceSingle {
     pub market_set: MarketPreset,
     pub pair: Vec<QATradePair>,
     pub temp: HashMap<String, Vec<Temp>>,
@@ -46,7 +45,7 @@ pub struct QAPerformance_Single {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct QAPerformance {
-    pub market: HashMap<String, QAPerformance_Single>,
+    pub market: HashMap<String, QAPerformanceSingle>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -67,7 +66,7 @@ impl QAPerformance {
                 .unwrap()
                 .insert_trade(trade.clone());
         } else {
-            let mut u = QAPerformance_Single::new();
+            let mut u = QAPerformanceSingle::new();
             u.insert_trade(trade.clone());
             self.market.insert(code.clone(), u);
         }
@@ -91,12 +90,12 @@ impl QAPerformance {
     }
 }
 
-impl QAPerformance_Single {
+impl QAPerformanceSingle {
     pub fn new() -> Self {
         let mut temp = HashMap::new();
         temp.insert("BUY".to_string(), vec![]);
         temp.insert("SELL".to_string(), vec![]);
-        QAPerformance_Single {
+        QAPerformanceSingle {
             market_set: MarketPreset::new(),
             pair: vec![],
             temp,
@@ -313,22 +312,31 @@ mod tests {
     #[test]
     fn test_to_qifi() {
         let code = "rb2005";
-        let mut p = QAPerformance_Single::new();
+        let mut p = QAPerformanceSingle::new();
         let mut acc = QA_Account::new("RustT01B2_RBL8", "test", "admin", 10000000.0, false, "real");
         acc.init_h(code);
-        acc.sell_open(code, 10.0, "2020-01-20 09:30:22", 3500.0);
-        acc.buy_open(code, 10.0, "2020-01-20 09:52:00", 3500.0);
+        acc.sell_open(code, 10.0, "2020-01-20 09:30:22", 3500.0)
+            .unwrap();
+        acc.buy_open(code, 10.0, "2020-01-20 09:52:00", 3500.0)
+            .unwrap();
         assert_eq!(acc.get_volume_short(code), 10.0);
         assert_eq!(acc.get_volume_long(code), 10.0);
-        acc.buy_close(code, 10.0, "2020-01-20 10:22:00", 3600.0);
-        acc.buy_open(code, 10.0, "2020-01-20 13:54:00", 3500.0);
-        acc.buy_open(code, 10.0, "2020-01-20 13:55:00", 3510.0);
+        acc.buy_close(code, 10.0, "2020-01-20 10:22:00", 3600.0)
+            .unwrap();
+        acc.buy_open(code, 10.0, "2020-01-20 13:54:00", 3500.0)
+            .unwrap();
+        acc.buy_open(code, 10.0, "2020-01-20 13:55:00", 3510.0)
+            .unwrap();
 
-        acc.sell_close(code, 20.0, "2020-01-20 14:52:00", 3620.0);
-        acc.buy_open(code, 20.0, "2020-01-21 13:54:00", 3500.0);
-        acc.sell_close(code, 15.0, "2020-01-21 13:55:00", 3510.0);
+        acc.sell_close(code, 20.0, "2020-01-20 14:52:00", 3620.0)
+            .unwrap();
+        acc.buy_open(code, 20.0, "2020-01-21 13:54:00", 3500.0)
+            .unwrap();
+        acc.sell_close(code, 15.0, "2020-01-21 13:55:00", 3510.0)
+            .unwrap();
 
-        acc.sell_close(code, 5.0, "2020-01-21 14:52:00", 3420.0);
+        acc.sell_close(code, 5.0, "2020-01-21 14:52:00", 3420.0)
+            .unwrap();
         println!("{:#?}", acc.dailytrades);
         for (_, i) in acc.dailytrades.iter_mut() {
             println!("{:#?}", i);
@@ -341,7 +349,7 @@ mod tests {
     #[test]
     fn test_backtest() {
         let code = "rb2005";
-        let mut p = QAPerformance_Single::new();
+        let mut p = QAPerformanceSingle::new();
         let mut acc = QA_Account::new(
             "RustT01B2_RBL8",
             "test",
@@ -351,19 +359,28 @@ mod tests {
             "backtest",
         );
         acc.init_h(code);
-        acc.sell_open(code, 10.0, "2020-01-20 09:30:22", 3500.0);
-        acc.buy_open(code, 10.0, "2020-01-20 09:52:00", 3500.0);
+        acc.sell_open(code, 10.0, "2020-01-20 09:30:22", 3500.0)
+            .unwrap();
+        acc.buy_open(code, 10.0, "2020-01-20 09:52:00", 3500.0)
+            .unwrap();
         assert_eq!(acc.get_volume_short(code), 10.0);
         assert_eq!(acc.get_volume_long(code), 10.0);
-        acc.buy_close(code, 10.0, "2020-01-20 10:22:00", 3600.0);
-        acc.buy_open(code, 10.0, "2020-01-20 13:54:00", 3500.0);
-        acc.buy_open(code, 10.0, "2020-01-20 13:55:00", 3510.0);
+        acc.buy_close(code, 10.0, "2020-01-20 10:22:00", 3600.0)
+            .unwrap();
+        acc.buy_open(code, 10.0, "2020-01-20 13:54:00", 3500.0)
+            .unwrap();
+        acc.buy_open(code, 10.0, "2020-01-20 13:55:00", 3510.0)
+            .unwrap();
 
-        acc.sell_close(code, 20.0, "2020-01-20 14:52:00", 3620.0);
-        acc.buy_open(code, 20.0, "2020-01-21 13:54:00", 3500.0);
-        acc.sell_close(code, 15.0, "2020-01-21 13:55:00", 3510.0);
+        acc.sell_close(code, 20.0, "2020-01-20 14:52:00", 3620.0)
+            .unwrap();
+        acc.buy_open(code, 20.0, "2020-01-21 13:54:00", 3500.0)
+            .unwrap();
+        acc.sell_close(code, 15.0, "2020-01-21 13:55:00", 3510.0)
+            .unwrap();
 
-        acc.sell_close(code, 5.0, "2020-01-21 14:52:00", 3420.0);
+        acc.sell_close(code, 5.0, "2020-01-21 14:52:00", 3420.0)
+            .unwrap();
 
         for i in acc.history.iter_mut() {
             p.insert_trade(i.to_qifitrade());
@@ -377,17 +394,26 @@ mod tests {
         let mut acc = QA_Account::new("test", "test", "admin", 1000000.0, false, "real");
         let code = "Z$002352";
         let mut p = QAPerformance::new();
-        acc.sell_open(code, 1000.0, "2020-04-03 09:30:22", 46.33);
-        acc.sell_open("RB2005", 10.0, "2020-04-03 09:30:22", 3346.33);
-        acc.buy_open(code, 1000.0, "2020-04-03 09:52:00", 46.86);
+        acc.sell_open(code, 1000.0, "2020-04-03 09:30:22", 46.33)
+            .unwrap();
+        acc.sell_open("RB2005", 10.0, "2020-04-03 09:30:22", 3346.33)
+            .unwrap();
+        acc.buy_open(code, 1000.0, "2020-04-03 09:52:00", 46.86)
+            .unwrap();
 
-        acc.buy_close(code, 1000.0, "2020-04-03 10:22:00", 47.34);
-        acc.sell_close(code, 1000.0, "2020-04-03 10:22:00", 47.34);
-        acc.buy_close("RB2005", 10.0, "2020-04-03 10:30:22", 3246.33);
-        acc.buy_open(code, 1000.0, "2020-04-03 13:54:00", 47.1);
-        acc.buy_open(code, 1000.0, "2020-04-03 13:55:00", 47.11);
+        acc.buy_close(code, 1000.0, "2020-04-03 10:22:00", 47.34)
+            .unwrap();
+        acc.sell_close(code, 1000.0, "2020-04-03 10:22:00", 47.34)
+            .unwrap();
+        acc.buy_close("RB2005", 10.0, "2020-04-03 10:30:22", 3246.33)
+            .unwrap();
+        acc.buy_open(code, 1000.0, "2020-04-03 13:54:00", 47.1)
+            .unwrap();
+        acc.buy_open(code, 1000.0, "2020-04-03 13:55:00", 47.11)
+            .unwrap();
 
-        acc.sell_close(code, 2000.0, "2020-04-03 14:52:00", 47.17);
+        acc.sell_close(code, 2000.0, "2020-04-03 14:52:00", 47.17)
+            .unwrap();
 
         // acc.buy_open(code, 2000.0, "2020-04-03 13:54:00", 47.1);
         // acc.sell_close(code, 1000.0, "2020-04-03 13:55:00", 47.11);
@@ -421,17 +447,26 @@ mod tests {
         let mut acc = QA_Account::new("test", "test", "admin", 1000000.0, false, "real");
         let code = "Z$002352";
         let mut p = QAPerformance::new();
-        acc.sell_open(code, 1000.0, "2020-04-03 09:30:22", 46.33);
-        acc.sell_open("RB2005", 10.0, "2020-04-03 09:30:22", 3346.33);
-        acc.buy_open(code, 1000.0, "2020-04-03 09:52:00", 46.86);
+        acc.sell_open(code, 1000.0, "2020-04-03 09:30:22", 46.33)
+            .unwrap();
+        acc.sell_open("RB2005", 10.0, "2020-04-03 09:30:22", 3346.33)
+            .unwrap();
+        acc.buy_open(code, 1000.0, "2020-04-03 09:52:00", 46.86)
+            .unwrap();
 
-        acc.buy_closetoday(code, 1000.0, "2020-04-03 10:22:00", 47.34);
-        acc.sell_closetoday(code, 1000.0, "2020-04-03 10:22:00", 47.34);
-        acc.buy_closetoday("RB2005", 10.0, "2020-04-03 10:30:22", 3246.33);
-        acc.buy_open(code, 1000.0, "2020-04-03 13:54:00", 47.1);
-        acc.buy_open(code, 1000.0, "2020-04-03 13:55:00", 47.11);
+        acc.buy_closetoday(code, 1000.0, "2020-04-03 10:22:00", 47.34)
+            .unwrap();
+        acc.sell_closetoday(code, 1000.0, "2020-04-03 10:22:00", 47.34)
+            .unwrap();
+        acc.buy_closetoday("RB2005", 10.0, "2020-04-03 10:30:22", 3246.33)
+            .unwrap();
+        acc.buy_open(code, 1000.0, "2020-04-03 13:54:00", 47.1)
+            .unwrap();
+        acc.buy_open(code, 1000.0, "2020-04-03 13:55:00", 47.11)
+            .unwrap();
 
-        acc.sell_closetoday(code, 2000.0, "2020-04-03 14:52:00", 47.17);
+        acc.sell_closetoday(code, 2000.0, "2020-04-03 14:52:00", 47.17)
+            .unwrap();
 
         // acc.buy_open(code, 2000.0, "2020-04-03 13:54:00", 47.1);
         // acc.sell_close(code, 1000.0, "2020-04-03 13:55:00", 47.11);
